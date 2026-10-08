@@ -27,6 +27,8 @@ bool Game::init()
 	textDetail(quit_option, sf::Color::Black, 30);
 	textPosition(quit_option, 850, 300);
 
+	menu_background.setScale({ 1.5,0.9 });
+
 	return true;
 }
 
@@ -44,7 +46,7 @@ void Game::render()
 
 	if (start_menu)
 	{
-		window.draw(background);
+		window.draw(menu_background);
 		window.draw(menu_text);
 		window.draw(play_option);
 		window.draw(quit_option);
@@ -54,10 +56,7 @@ void Game::render()
 
 	if (in_game)
 	{
-		window.draw(menu_text);
-		window.draw(play_option);
-		window.draw(quit_option);
-
+		window.draw(background);
 		return;
 	}
 
@@ -99,7 +98,7 @@ void Game::keyPressed(const sf::Event::KeyPressed* event)
 		{
 			menu = QUIT;
 
-			textDetail(quit_option, sf::Color::Green, 30);
+			textDetail(quit_option, sf::Color::Blue, 30);
 			textDetail(play_option, sf::Color::Black, 30);
 		}
 		if (event->scancode == sf::Keyboard::Scancode::Enter)
@@ -114,7 +113,7 @@ void Game::keyPressed(const sf::Event::KeyPressed* event)
 		if (event->scancode == sf::Keyboard::Scancode::Left || event->scancode == sf::Keyboard::Scancode::Right)
 		{
 			menu = PLAY;
-			textDetail(play_option, sf::Color::Green, 30);
+			textDetail(play_option, sf::Color::Blue, 30);
 			textDetail(quit_option, sf::Color::Black, 30);
 
 		}

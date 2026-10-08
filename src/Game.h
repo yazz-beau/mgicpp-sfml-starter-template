@@ -30,8 +30,11 @@ class Game
   sf::Text play_option{ font, "PLAY" };
   sf::Text quit_option{ font, "QUIT" };
 
-  sf::Texture background_texture {"../Data/Images/WhackaMoleWorksheet/background.png"};
+  sf::Texture background_texture {"../Data/Images/WhackaMole Worksheet/background.png"};
   sf::Sprite background = sf::Sprite(background_texture);
+
+  sf::Texture menu_background_texture{ "../Data/Images/kenney_physicspack/PNG/Backgrounds/blue_land.png" };
+  sf::Sprite menu_background = sf::Sprite(menu_background_texture);
 
   bool start_menu = true;
   bool in_game = false;
