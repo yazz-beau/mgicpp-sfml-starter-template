@@ -1,11 +1,11 @@
-
+#include <SFML/Graphics.hpp>
 #include "Game.h"
 #include <iostream>
 
 Game::Game(sf::RenderWindow& game_window)
-  : window(game_window)
+	: window(game_window)
 {
-  srand(time(NULL)); //seeds random number generator with the current time
+	srand(time(NULL)); //seeds random number generator with the current time
 }
 
 Game::~Game()
@@ -16,12 +16,22 @@ Game::~Game()
 // We call this once after the game class is instantiated
 bool Game::init()
 {
+	start_menu = true;
 
-  return true;
+	textDetail(menu_text, sf::Color::Black, 50);
+	textPosition(menu_text, 450, 100);
+
+	textDetail(play_option, sf::Color::Black, 30);
+	textPosition(play_option, 100, 300);
+
+	textDetail(quit_option, sf::Color::Black, 30);
+	textPosition(quit_option, 850, 300);
+
+	return true;
 }
 
-// Update runs after event polling and before rendering
-// use it for everything that needs to update between frames
+//Update runs after event polling and before rendering
+//use it for everything that needs to update between frames
 void Game::update(float dt)
 {
 
@@ -30,6 +40,26 @@ void Game::update(float dt)
 // Runs after update, use it to tell the window what to draw this frame
 void Game::render()
 {
+	//window.display();
+
+	if (start_menu)
+	{
+		window.draw(background);
+		window.draw(menu_text);
+		window.draw(play_option);
+		window.draw(quit_option);
+
+		return;
+	}
+
+	if (in_game)
+	{
+		window.draw(menu_text);
+		window.draw(play_option);
+		window.draw(quit_option);
+
+		return;
+	}
 
 }
 
@@ -61,10 +91,45 @@ void Game::mouseButtonReleased(const sf::Event::MouseButtonReleased* event)
 // Called by event polling when a KeyPressed event is found
 void Game::keyPressed(const sf::Event::KeyPressed* event)
 {
-	// You can tell which button was pressed by the scancode to SFML's definitions of keyboard keys
-	if (event->scancode == sf::Keyboard::Scancode::W)
+	switch (menu)
 	{
-		// W was pressed
+	case PLAY:
+	{
+		if (event->scancode == sf::Keyboard::Scancode::Right || event->scancode == sf::Keyboard::Scancode::Left)
+		{
+			menu = QUIT;
+
+			textDetail(quit_option, sf::Color::Green, 30);
+			textDetail(play_option, sf::Color::Black, 30);
+		}
+		if (event->scancode == sf::Keyboard::Scancode::Enter)
+		{
+			in_game = true;
+			start_menu = false;
+		}
+		break;
+	}
+	case QUIT:
+	{
+		if (event->scancode == sf::Keyboard::Scancode::Left || event->scancode == sf::Keyboard::Scancode::Right)
+		{
+			menu = PLAY;
+			textDetail(play_option, sf::Color::Green, 30);
+			textDetail(quit_option, sf::Color::Black, 30);
+
+		}
+		if (event->scancode == sf::Keyboard::Scancode::Enter)
+		{
+			window.close();
+		}
+		break;
+	}
+	}
+
+	// You can tell which button was pressed by the scancode to SFML's definitions of keyboard keys
+	if (event->scancode == sf::Keyboard::Scancode::Escape)
+	{
+		window.close();
 	}
 
 }
@@ -80,4 +145,13 @@ void Game::keyReleased(const sf::Event::KeyReleased* event)
 
 }
 
+void Game::textDetail(sf::Text& text, sf::Color color, int charsize)
+{
+	text.setFillColor(sf::Color(color));
+	text.setCharacterSize(charsize);
+}
 
+void Game::textPosition(sf::Text& text, float x, float y)
+{
+	text.setPosition({ x, y });
+}

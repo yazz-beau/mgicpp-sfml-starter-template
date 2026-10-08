@@ -70,7 +70,7 @@ int main()
     game.update(dt);    
 
     //'render' element of the game loop
-    window.clear(sf::Color::Black);
+    window.clear(sf::Color::Red);
     game.render();
     window.display();
   }
