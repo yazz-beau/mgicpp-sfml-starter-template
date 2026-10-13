@@ -2,20 +2,24 @@
 #include "Game.h"
 #include <iostream>
 
-Game::Game(sf::RenderWindow& game_window)
-	: window(game_window)
+Game::Game(sf::RenderWindow& game_window): window(game_window)
 {
 	srand(time(NULL)); //seeds random number generator with the current time
 }
 
 Game::~Game()
 {
-
+	delete[] animals;
+	delete[] passports;
+	delete[] character;
+	delete[] passport;
 }
 
 // We call this once after the game class is instantiated
 bool Game::init()
 {
+	//   M E N U   //
+
 	start_menu = true;
 
 	textDetail(menu_text, sf::Color::Black, 50);
@@ -28,6 +32,29 @@ bool Game::init()
 	textPosition(quit_option, 850, 300);
 
 	menu_background.setScale({ 1.5,0.9 });
+
+	//for (animals[0].);
+
+	//if (!animals[0].initialiseSprite("../Data/Images/element_grey_rectangle_glossy.png"))
+	//{
+	//	std::cout << "blocks did not load\n";
+	//}
+
+	animals[0].loadFromFile("../Data/Images/Critter Crossing/elephant.png");
+	animals[1].loadFromFile("../Data/Images/Critter Crossing/moose.png");
+	animals[2].loadFromFile("../Data/Images/Critter Crossing/penguin.png");
+
+	passports[0].loadFromFile("../Data/Images/Critter Crossing/elephant passport.png");
+	passports[1].loadFromFile("../Data/Images/Critter Crossing/moose passport.png");
+	passports[2].loadFromFile("../Data/Images/Critter Crossing/penguin passport.png");
+
+	character = new sf::Sprite(animals[0]);
+    passport = new sf::Sprite(passports[0]);
+
+	/*character->setPosition({ 500.f,500.f });*/
+	passport->setPosition({ 500.f,50.f });
+
+	newAnimal();
 
 	return true;
 }
@@ -57,6 +84,8 @@ void Game::render()
 	if (in_game)
 	{
 		window.draw(background);
+		window.draw(*character);
+		window.draw(*passport);
 		return;
 	}
 
@@ -153,4 +182,29 @@ void Game::textDetail(sf::Text& text, sf::Color color, int charsize)
 void Game::textPosition(sf::Text& text, float x, float y)
 {
 	text.setPosition({ x, y });
+}
+
+void Game::newAnimal()
+{
+	int animal_index = rand() % 3;
+	int passport_index = rand() % 3;
+	bool should_accept;
+
+	if (animal_index == passport_index)
+	{
+		should_accept = true;
+	}
+	else
+	{
+		should_accept = false;
+	}
+
+	character->setTexture(animals[animal_index], true);
+	character->setScale({1.8, 1.8});
+	character->setPosition(sf::Vector2f(window.getSize().x / 12, window.getSize().y / 12));
+
+	passport->setTexture( passports[passport_index], true);
+	passport->setScale({0.6, 0.6});
+	passport->setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 3));
+
 }
