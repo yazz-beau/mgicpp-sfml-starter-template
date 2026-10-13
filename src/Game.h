@@ -20,6 +20,7 @@ class Game
   void textPosition(sf::Text& text, float x, float y);
   void textDetail(sf::Text& text, sf::Color color, int charsize);
   void newAnimal();
+  void dragSprite(sf::Sprite* sprite);
 
 
  private:
@@ -42,6 +43,12 @@ class Game
   sf::Texture menu_background_texture{ "../Data/Images/kenney_physicspack/PNG/Backgrounds/blue_land.png" };
   sf::Sprite menu_background = sf::Sprite(menu_background_texture);
 
+  sf::Texture accept_texture{ "../Data/Images/Critter Crossing/accept button.png" };
+  sf::Sprite accept_stamp = sf::Sprite(accept_texture);
+
+  sf::Texture reject_texture{ "../Data/Images/Critter Crossing/reject button.png" };
+  sf::Sprite reject_stamp = sf::Sprite(reject_texture);
+
   sf::Sprite* character;
   sf::Sprite* passport;
 
@@ -53,6 +60,12 @@ class Game
   bool start_menu = true;
   bool in_game = false;
   bool in_menu = false;
+  bool aRwindowOpen = false;
+
+  // P A S S P O R T   M O V E //
+
+  sf::Sprite* dragged = nullptr;
+  sf::Vector2f drag_offset;
 
 };
 

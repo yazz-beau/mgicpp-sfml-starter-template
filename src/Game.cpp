@@ -33,12 +33,7 @@ bool Game::init()
 
 	menu_background.setScale({ 1.5,0.9 });
 
-	//for (animals[0].);
-
-	//if (!animals[0].initialiseSprite("../Data/Images/element_grey_rectangle_glossy.png"))
-	//{
-	//	std::cout << "blocks did not load\n";
-	//}
+	//  T E X T U R E S  +  S P R I T E  //
 
 	animals[0].loadFromFile("../Data/Images/Critter Crossing/elephant.png");
 	animals[1].loadFromFile("../Data/Images/Critter Crossing/moose.png");
@@ -51,10 +46,22 @@ bool Game::init()
 	character = new sf::Sprite(animals[0]);
     passport = new sf::Sprite(passports[0]);
 
+
+
 	/*character->setPosition({ 500.f,500.f });*/
 	passport->setPosition({ 500.f,50.f });
 
 	newAnimal();
+
+	// M O U S E   M O V E //
+
+	/*sf::Sprite* dragged = nullptr;
+	sf::Vector2f drag_offset;*/
+
+	// R E J E C T   A N D   A C C E P T //
+
+	accept_stamp.setPosition({ 700.f,50.f });
+	reject_stamp.setPosition({ 700.f,500.f });
 
 	return true;
 }
@@ -63,7 +70,7 @@ bool Game::init()
 //use it for everything that needs to update between frames
 void Game::update(float dt)
 {
-
+	dragSprite(dragged);
 }
 
 // Runs after update, use it to tell the window what to draw this frame
@@ -86,6 +93,12 @@ void Game::render()
 		window.draw(background);
 		window.draw(*character);
 		window.draw(*passport);
+
+		if (aRwindowOpen == true)
+		{
+			window.draw(accept_stamp);
+			window.draw(reject_stamp);
+		}
 		return;
 	}
 
@@ -94,16 +107,39 @@ void Game::render()
 //Called by event polling when a MouseButtonPressed event is found
 void Game::mouseButtonPressed(const sf::Event::MouseButtonPressed* event)
 {
-	// Event contains mouse position and which button was clicked
+	if (event->button == sf::Mouse::Button::Left)
+	{
+		sf::Vector2i position = event->position;
+		sf::Vector2f mouse_positionf = static_cast<sf::Vector2f>(position);
+
+		if (passport->getGlobalBounds().contains(mouse_positionf))
+		{
+			dragged = passport;
+
+			drag_offset = mouse_positionf - passport->getPosition();
+		}
+     
+	}
+
+	if (event->button == sf::Mouse::Button::Right)
+	{
+		if (aRwindowOpen == false)
+		{
+			aRwindowOpen = true;
+			return;
+		}
+
+		if (aRwindowOpen == true)
+		{
+			aRwindowOpen = false;
+			return;
+		}
+	}
 
 	// Don't need to extract position to a variable like this, this is just to show you it's a Vector2i
 	sf::Vector2i position = event->position;
 
-	// You can tell which button was pressed by comparing it to SFML's definitions of mouse buttons
-	if (event->button == sf::Mouse::Button::Left)
-	{
-		//Left mouse button was pressed
-	}
+	
 }
 
 //Called by event polling when a MouseButtonReleased event is found
@@ -112,7 +148,7 @@ void Game::mouseButtonReleased(const sf::Event::MouseButtonReleased* event)
 	//Works the same as MouseButtonPressed
 	if (event->button == sf::Mouse::Button::Left)
 	{
-		//Left mouse button was released
+		dragged = nullptr;
 	}
 }
 
@@ -207,4 +243,18 @@ void Game::newAnimal()
 	passport->setScale({0.6, 0.6});
 	passport->setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 3));
 
+}
+
+void Game::dragSprite(sf::Sprite* sprite)
+{
+	if (sprite != nullptr)
+	{
+		sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
+		sf::Vector2f mouse_positionf = static_cast<sf::Vector2f>(mouse_position);
+
+		/*sf::Vector2f drag_offset = mouse_positionf - sprite->getPosition();*/
+
+		sf::Vector2f drag_position = mouse_positionf - drag_offset;
+		sprite->setPosition({ drag_position.x, drag_position.y });
+	}
 }
