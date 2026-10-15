@@ -5,6 +5,8 @@
 #include <SFML/Graphics.hpp>
 
 enum menu_select {PLAY, QUIT};
+enum clickingLeft {AR, PASSPORT};
+
 class Game
 {
  public:
@@ -21,7 +23,7 @@ class Game
   void textDetail(sf::Text& text, sf::Color color, int charsize);
   void newAnimal();
   void dragSprite(sf::Sprite* sprite);
-
+  void acceptReject();
 
  private:
   sf::RenderWindow& window;
@@ -55,12 +57,20 @@ class Game
   sf::Texture* animals = new sf::Texture[3];
   sf::Texture* passports = new sf::Texture[3];
 
+  clickingLeft clickLeft = PASSPORT;
+
   //   S T A T E S   //
 
   bool start_menu = true;
   bool in_game = false;
   bool in_menu = false;
   bool aRwindowOpen = false;
+  bool accept = false;
+  bool reject = false;
+  bool stamped = false;
+
+  int score = 0;
+  sf::Text score_ {font, "Score: " + std::to_string(score)};
 
   // P A S S P O R T   M O V E //
 

@@ -18,7 +18,7 @@ Game::~Game()
 // We call this once after the game class is instantiated
 bool Game::init()
 {
-	//   M E N U   //
+	//////   M E N U   //////
 
 	start_menu = true;
 
@@ -33,6 +33,13 @@ bool Game::init()
 
 	menu_background.setScale({ 1.5,0.9 });
 
+	/////////  M A I N   G A M E ///////
+
+	//   T E X T   //
+
+	textDetail(score_, sf::Color::Black, 50);
+	textPosition(score_, 500, 20);
+
 	//  T E X T U R E S  +  S P R I T E  //
 
 	animals[0].loadFromFile("../Data/Images/Critter Crossing/elephant.png");
@@ -45,8 +52,6 @@ bool Game::init()
 
 	character = new sf::Sprite(animals[0]);
     passport = new sf::Sprite(passports[0]);
-
-
 
 	/*character->setPosition({ 500.f,500.f });*/
 	passport->setPosition({ 500.f,50.f });
@@ -63,6 +68,11 @@ bool Game::init()
 	accept_stamp.setPosition({ 700.f,50.f });
 	reject_stamp.setPosition({ 700.f,500.f });
 
+	//if (aRwindowOpen)
+	//{
+	//	if()
+	//}
+
 	return true;
 }
 
@@ -71,6 +81,7 @@ bool Game::init()
 void Game::update(float dt)
 {
 	dragSprite(dragged);
+	score_.setString("Score: " + std::to_string(score));
 }
 
 // Runs after update, use it to tell the window what to draw this frame
@@ -93,6 +104,7 @@ void Game::render()
 		window.draw(background);
 		window.draw(*character);
 		window.draw(*passport);
+		window.draw(score_);
 
 		if (aRwindowOpen == true)
 		{
@@ -112,11 +124,36 @@ void Game::mouseButtonPressed(const sf::Event::MouseButtonPressed* event)
 		sf::Vector2i position = event->position;
 		sf::Vector2f mouse_positionf = static_cast<sf::Vector2f>(position);
 
-		if (passport->getGlobalBounds().contains(mouse_positionf))
+		/*switch (clickLeft)*/
+
+		if (aRwindowOpen == true && accept_stamp.getGlobalBounds().contains(mouse_positionf))
+		{
+			std::cout << "accept";
+			accept = true;
+			stamped = true;
+		}
+
+		if (aRwindowOpen == true && reject_stamp.getGlobalBounds().contains(mouse_positionf))
+		{
+			std::cout << "reject";
+			reject = true;
+			stamped = true;
+		}
+
+		else if (passport->getGlobalBounds().contains(mouse_positionf))
 		{
 			dragged = passport;
 
 			drag_offset = mouse_positionf - passport->getPosition();
+		}
+
+		if (stamped == true && character->getGlobalBounds().findIntersection(passport->getGlobalBounds()))
+		{
+			accept = false;
+			reject = false;
+			stamped = false;
+			score = score + 1;
+			newAnimal();
 		}
      
 	}
@@ -236,7 +273,7 @@ void Game::newAnimal()
 	}
 
 	character->setTexture(animals[animal_index], true);
-	character->setScale({1.8, 1.8});
+	character->setScale({1.5, 1.5});
 	character->setPosition(sf::Vector2f(window.getSize().x / 12, window.getSize().y / 12));
 
 	passport->setTexture( passports[passport_index], true);
@@ -252,9 +289,12 @@ void Game::dragSprite(sf::Sprite* sprite)
 		sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
 		sf::Vector2f mouse_positionf = static_cast<sf::Vector2f>(mouse_position);
 
-		/*sf::Vector2f drag_offset = mouse_positionf - sprite->getPosition();*/
-
 		sf::Vector2f drag_position = mouse_positionf - drag_offset;
 		sprite->setPosition({ drag_position.x, drag_position.y });
 	}
+}
+
+void Game::acceptReject()
+{
+
 }
