@@ -2,6 +2,8 @@
 #include "Game.h"
 #include <iostream>
 
+// NEED PASSPORT BORDER//
+
 Game::Game(sf::RenderWindow& game_window): window(game_window)
 {
 	srand(time(NULL)); //seeds random number generator with the current time
@@ -31,6 +33,9 @@ bool Game::init()
 	textDetail(quit_option, sf::Color::Black, 30);
 	textPosition(quit_option, 850, 300);
 
+	textDetail(instruct_, sf::Color::Black, 30);
+	textPosition(instruct_, 400, 300);
+
 	menu_background.setScale({ 1.5,0.9 });
 
 	/////////  M A I N   G A M E ///////
@@ -39,6 +44,9 @@ bool Game::init()
 
 	textDetail(score_, sf::Color::Black, 50);
 	textPosition(score_, 500, 20);
+
+	textDetail(lives_, sf::Color::Black, 50);
+	textPosition(lives_, 800, 20);
 
 	//  T E X T U R E S  +  S P R I T E  //
 
@@ -53,6 +61,16 @@ bool Game::init()
 	character = new sf::Sprite(animals[0]);
     passport = new sf::Sprite(passports[0]);
 
+	character->setTexture(animals[animal_index]);
+	passport->setTexture(passports[passport_index]);
+
+	/*character->setScale({1.5, 1.5});
+	character->setPosition(sf::Vector2f(window.getSize().x / 12, window.getSize().y / 12));
+
+	passport->setTexture(passports[passport_index], true);
+	passport->setScale({ 0.6, 0.6 });
+	passport->setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 3));*/
+
 	/*character->setPosition({ 500.f,500.f });*/
 	passport->setPosition({ 500.f,50.f });
 
@@ -65,13 +83,25 @@ bool Game::init()
 
 	// R E J E C T   A N D   A C C E P T //
 
-	accept_stamp.setPosition({ 700.f,50.f });
+	accept_stamp.setPosition({ 700.f,300.f });
 	reject_stamp.setPosition({ 700.f,500.f });
 
-	//if (aRwindowOpen)
-	//{
-	//	if()
-	//}
+	// W I N   &   L O S E //
+
+	textDetail(win_text, sf::Color::Black, 50);
+	textPosition(win_text, 450, 100);
+	textDetail(lose_text, sf::Color::Black, 50);
+	textPosition(lose_text, 450, 100);
+
+	textDetail(menu_option, sf::Color::Blue, 50);
+	textPosition(menu_option, 350, 400);
+
+	textDetail(instruct_menu, sf::Color::Black, 50);
+	textPosition(instruct_menu, 400, 100);
+
+	textDetail(instructions, sf::Color::Black, 25);
+	textPosition(instructions, 200, 300);
+
 
 	return true;
 }
@@ -82,6 +112,17 @@ void Game::update(float dt)
 {
 	dragSprite(dragged);
 	score_.setString("Score: " + std::to_string(score));
+	lives_.setString("Lives: " + std::to_string(lives));
+
+	if (accept == true)
+	{
+		accept_ink.setPosition(passport->getPosition() + accept_stamp_offset);
+	}
+
+	if (reject == true)
+	{
+		reject_ink.setPosition(passport->getPosition() + reject_stamp_offset);
+	}
 }
 
 // Runs after update, use it to tell the window what to draw this frame
@@ -95,6 +136,7 @@ void Game::render()
 		window.draw(menu_text);
 		window.draw(play_option);
 		window.draw(quit_option);
+		window.draw(instruct_);
 
 		return;
 	}
@@ -105,12 +147,50 @@ void Game::render()
 		window.draw(*character);
 		window.draw(*passport);
 		window.draw(score_);
+		window.draw(lives_);
+
+		if (accept == true)
+		{
+			window.draw(accept_ink);
+		}
+		if (reject == true)
+		{
+			window.draw(reject_ink);
+		}
 
 		if (aRwindowOpen == true)
 		{
 			window.draw(accept_stamp);
 			window.draw(reject_stamp);
 		}
+
+		return;
+	}
+
+	if (instruct == true)
+	{
+		window.draw(menu_background);
+		window.draw(instructions);
+		window.draw(instruct_menu);
+
+		return;
+	}
+
+	if (win == true)
+	{
+		window.draw(menu_background);
+		window.draw(menu_option);
+		window.draw(win_text);
+
+		return;
+	}
+
+	if (lose == true)
+	{
+		window.draw(menu_background);
+		window.draw(menu_option);
+		window.draw(lose_text);
+
 		return;
 	}
 
@@ -128,16 +208,54 @@ void Game::mouseButtonPressed(const sf::Event::MouseButtonPressed* event)
 
 		if (aRwindowOpen == true && accept_stamp.getGlobalBounds().contains(mouse_positionf))
 		{
-			std::cout << "accept";
-			accept = true;
-			stamped = true;
+			if (accept_stamp.getGlobalBounds().findIntersection(passport->getGlobalBounds()))
+			{
+				accept = true;
+				stamped = true;
+				reject = false;
+
+				std::cout << "accept_stamped,";
+
+				std::optional<sf::FloatRect> stamp_pos = accept_stamp.getGlobalBounds().findIntersection(passport->getGlobalBounds());
+
+				if (stamp_pos.has_value())
+				{
+					accept_stamp_offset = stamp_pos->position - passport->getPosition();
+					accept_ink.setPosition(passport->getPosition() + accept_stamp_offset);
+
+				}
+			}
+			else
+			{
+				std::cout << "accept_stamped_attempted,";
+			}
 		}
 
 		if (aRwindowOpen == true && reject_stamp.getGlobalBounds().contains(mouse_positionf))
 		{
-			std::cout << "reject";
-			reject = true;
-			stamped = true;
+			if (reject_stamp.getGlobalBounds().findIntersection(passport->getGlobalBounds()))
+			{
+				reject = true;
+				stamped = true;
+				accept = false;
+
+				std::cout << "reject_stamped,";
+
+				// can use auto? ask dont understand fully
+				std::optional<sf::FloatRect> stamp_pos = reject_stamp.getGlobalBounds().findIntersection(passport->getGlobalBounds());
+
+				if (stamp_pos.has_value())
+				{
+					reject_stamp_offset = stamp_pos->position - passport->getPosition();
+					reject_ink.setPosition(passport->getPosition() + reject_stamp_offset);
+
+				}
+
+			}
+			else
+			{
+				std::cout << "reject_stamped_attempt,";
+			}
 		}
 
 		else if (passport->getGlobalBounds().contains(mouse_positionf))
@@ -149,11 +267,8 @@ void Game::mouseButtonPressed(const sf::Event::MouseButtonPressed* event)
 
 		if (stamped == true && character->getGlobalBounds().findIntersection(passport->getGlobalBounds()))
 		{
-			accept = false;
-			reject = false;
+			acceptRejectPoints();
 			stamped = false;
-			score = score + 1;
-			newAnimal();
 		}
      
 	}
@@ -175,7 +290,6 @@ void Game::mouseButtonPressed(const sf::Event::MouseButtonPressed* event)
 
 	// Don't need to extract position to a variable like this, this is just to show you it's a Vector2i
 	sf::Vector2i position = event->position;
-
 	
 }
 
@@ -196,41 +310,108 @@ void Game::keyPressed(const sf::Event::KeyPressed* event)
 	{
 	case PLAY:
 	{
-		if (event->scancode == sf::Keyboard::Scancode::Right || event->scancode == sf::Keyboard::Scancode::Left)
+		if (start_menu == true)
 		{
-			menu = QUIT;
+			if (event->scancode == sf::Keyboard::Scancode::Right)
+			{
+				menu = INST;
 
-			textDetail(quit_option, sf::Color::Blue, 30);
-			textDetail(play_option, sf::Color::Black, 30);
+				textDetail(instruct_, sf::Color::Blue, 30);
+				textDetail(play_option, sf::Color::Black, 30);
+			}
+			if (event->scancode == sf::Keyboard::Scancode::Left)
+			{
+				menu = QUIT;
+				textDetail(quit_option, sf::Color::Blue, 30);
+				textDetail(play_option, sf::Color::Black, 30);
+
+			}
+			if (event->scancode == sf::Keyboard::Scancode::Enter)
+			{
+				in_game = true;
+				start_menu = false;
+			}
+			break;
 		}
-		if (event->scancode == sf::Keyboard::Scancode::Enter)
-		{
-			in_game = true;
-			start_menu = false;
-		}
-		break;
 	}
 	case QUIT:
 	{
-		if (event->scancode == sf::Keyboard::Scancode::Left || event->scancode == sf::Keyboard::Scancode::Right)
-		{
-			menu = PLAY;
-			textDetail(play_option, sf::Color::Blue, 30);
-			textDetail(quit_option, sf::Color::Black, 30);
 
-		}
-		if (event->scancode == sf::Keyboard::Scancode::Enter)
+		if (start_menu == true)
 		{
-			window.close();
+			if (event->scancode == sf::Keyboard::Scancode::Right)
+			{
+				menu = PLAY;
+				textDetail(play_option, sf::Color::Blue, 30);
+				textDetail(quit_option, sf::Color::Black, 30);
+
+			}
+			if (event->scancode == sf::Keyboard::Scancode::Left)
+			{
+				menu = INST;
+				textDetail(instruct_, sf::Color::Blue, 30);
+				textDetail(quit_option, sf::Color::Black, 30);
+
+			}
+			if (event->scancode == sf::Keyboard::Scancode::Enter)
+			{
+				window.close();
+			}
+			break;
 		}
-		break;
+	}
+	case INST:
+	{
+
+		if (start_menu == true)
+		{
+			if (event->scancode == sf::Keyboard::Scancode::Right)
+			{
+				menu = QUIT;
+				textDetail(quit_option, sf::Color::Blue, 30);
+				textDetail(instruct_, sf::Color::Black, 30);
+
+			}
+			if (event->scancode == sf::Keyboard::Scancode::Left)
+			{
+				menu = PLAY;
+				textDetail(play_option, sf::Color::Blue, 30);
+				textDetail(instruct_, sf::Color::Black, 30);
+
+			}
+			if (event->scancode == sf::Keyboard::Scancode::Enter)
+			{
+				start_menu = false;
+				instruct = true;
+			}
+			break;
+		}
 	}
 	}
-
 	// You can tell which button was pressed by the scancode to SFML's definitions of keyboard keys
 	if (event->scancode == sf::Keyboard::Scancode::Escape)
 	{
 		window.close();
+	}
+
+	if (win == true)
+	{
+		if (event->scancode == sf::Keyboard::Scancode::Enter)
+		{
+			win == false;
+
+			start_menu = true;
+		}
+	}
+
+	if (lose == true)
+	{
+		if (event->scancode == sf::Keyboard::Scancode::Enter)
+		{
+			lose == false;
+
+			start_menu = true;
+		}
 	}
 
 }
@@ -259,25 +440,15 @@ void Game::textPosition(sf::Text& text, float x, float y)
 
 void Game::newAnimal()
 {
-	int animal_index = rand() % 3;
-	int passport_index = rand() % 3;
-	bool should_accept;
-
-	if (animal_index == passport_index)
-	{
-		should_accept = true;
-	}
-	else
-	{
-		should_accept = false;
-	}
+	animal_index = rand() % 3;
+	passport_index = rand() % 3;
 
 	character->setTexture(animals[animal_index], true);
-	character->setScale({1.5, 1.5});
+	character->setScale({ 1.5, 1.5 });
 	character->setPosition(sf::Vector2f(window.getSize().x / 12, window.getSize().y / 12));
 
-	passport->setTexture( passports[passport_index], true);
-	passport->setScale({0.6, 0.6});
+	passport->setTexture(passports[passport_index], true);
+	passport->setScale({ 0.6, 0.6 });
 	passport->setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 3));
 
 }
@@ -294,7 +465,84 @@ void Game::dragSprite(sf::Sprite* sprite)
 	}
 }
 
-void Game::acceptReject()
+void Game::acceptRejectPoints()
 {
+
+	if (animal_index == passport_index && accept == true)
+	{
+		score = score + 1;
+		std::cout << "Correct";
+	}
+	else if (accept == true)
+	{
+		lives = lives - 1;
+		std::cout << "Wrong";
+	}
+	
+	if (animal_index == passport_index && reject == true)
+	{
+		lives = lives - 1;
+		std::cout << "Wrong";
+	}
+	else if (reject == true)
+	{
+		score = score + 1;
+		std::cout << "Correct";
+	}
+
+	if (score == 10)
+	{
+		win = true;
+		in_game = false;
+
+		reset_game();
+	}
+
+	if (lives == 0)
+	{
+		lose = true;
+		in_game = false;
+
+		reset_game();
+	}
+
+
+	accept = false;
+	reject = false;
+
+	newAnimal();
+}
+
+void Game::winloseConditions()
+{
+	/*switch (winLose)
+	{
+	case DAYS:
+	{
+		if()
+	}
+	case WIN:
+	{
+		if (score == 10)
+		{
+			win = true;
+
+		}
+		if (event->scancode == sf::Keyboard::Scancode::Enter)
+		{
+			window.close();
+		}
+		break;
+	}
+	}*/
+}
+
+void Game::reset_game()
+{
+	if (win == true || lose == true)
+	{
+		score = 0;
+		lives = 0;
+	}
 
 }
