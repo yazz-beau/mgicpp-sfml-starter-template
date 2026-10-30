@@ -50,13 +50,13 @@ bool Game::init()
 
 	//  T E X T U R E S  +  S P R I T E  //
 
-	animals[0].loadFromFile("../Data/Images/Critter Crossing/elephant.png");
-	animals[1].loadFromFile("../Data/Images/Critter Crossing/moose.png");
-	animals[2].loadFromFile("../Data/Images/Critter Crossing/penguin.png");
+	animals[0].loadFromFile("../Data/Images/critcros/Char1.png");
+	animals[1].loadFromFile("../Data/Images/critcros/Char2.png");
+	animals[2].loadFromFile("../Data/Images/critcros/Char3.png");
 
-	passports[0].loadFromFile("../Data/Images/Critter Crossing/elephant passport.png");
-	passports[1].loadFromFile("../Data/Images/Critter Crossing/moose passport.png");
-	passports[2].loadFromFile("../Data/Images/Critter Crossing/penguin passport.png");
+	passports[0].loadFromFile("../Data/Images/critcros/Char1_passport.jpg");
+	passports[1].loadFromFile("../Data/Images/critcros/Char2_passport.jpg");
+	passports[2].loadFromFile("../Data/Images/critcros/Char3_passport.jpg");
 
 	character = new sf::Sprite(animals[0]);
     passport = new sf::Sprite(passports[0]);
@@ -542,7 +542,7 @@ void Game::reset_game()
 	if (win == true || lose == true)
 	{
 		score = 0;
-		lives = 0;
+		lives = 0; 
 	}
 
 }
